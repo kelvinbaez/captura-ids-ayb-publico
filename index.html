@@ -389,7 +389,7 @@ tbody td { padding:11px 14px; vertical-align:middle; }
   <div class="header-divider"></div>
   <div class="header-right">
     <strong id="fecha-hoy"></strong>
-    Generado: 06/05/2026 16:44
+    Generado: 06/05/2026 16:50
     <div class="header-dept">Moon Palace &mdash; Compras</div>
   </div>
 </div>
@@ -1643,13 +1643,13 @@ tbody td { padding:11px 14px; vertical-align:middle; }
     <table id="tabla-cat">
       <thead>
         <tr>
-          <th>Centro</th>
-          <th>ID Mexico</th>
-          <th>Descripcion (Mexico)</th>
-          <th>Categoria</th>
-          <th>ID RD</th>
-          <th>Descripcion RD</th>
-          <th>Estatus</th>
+          <th onclick="sortCatalogo(0)">Centro <span class="sort-icon">&#x25B2;&#x25BC;</span></th>
+          <th onclick="sortCatalogo(1)">ID Mexico <span class="sort-icon">&#x25B2;&#x25BC;</span></th>
+          <th onclick="sortCatalogo(2)">Descripcion (Mexico) <span class="sort-icon">&#x25B2;&#x25BC;</span></th>
+          <th onclick="sortCatalogo(3)">Categoria <span class="sort-icon">&#x25B2;&#x25BC;</span></th>
+          <th onclick="sortCatalogo(4)">ID RD <span class="sort-icon">&#x25B2;&#x25BC;</span></th>
+          <th onclick="sortCatalogo(5)">Descripcion RD <span class="sort-icon">&#x25B2;&#x25BC;</span></th>
+          <th onclick="sortCatalogo(6)">Estatus <span class="sort-icon">&#x25B2;&#x25BC;</span></th>
         </tr>
       </thead>
       <tbody id="tbody-cat"></tbody>
@@ -1728,7 +1728,7 @@ tbody td { padding:11px 14px; vertical-align:middle; }
 </div>
 
 <div class="footer">
-  Moon Palace The Grand Punta Cana &nbsp;&mdash;&nbsp; Planificacion y Compras &nbsp;&mdash;&nbsp; Generado 06/05/2026 16:44
+  Moon Palace The Grand Punta Cana &nbsp;&mdash;&nbsp; Planificacion y Compras &nbsp;&mdash;&nbsp; Generado 06/05/2026 16:50
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1761,6 +1761,9 @@ let filtroCentro = "";
 // Orden de la tabla del Panel: indice de columna y direccion (1=asc, -1=desc, 0=sin orden)
 let sortColPanel = -1;
 let sortDirPanel = 0;
+// Orden de la tabla del Catalogo (independiente del Panel)
+let sortColCat = -1;
+let sortDirCat = 0;
 
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -2321,7 +2324,7 @@ function obtenerFiltradosCatalogo() {
   const fCentro = document.getElementById('cat-filtro-centro').value;
   const fCat = document.getElementById('cat-filtro-categoria').value;
   const fEst = document.getElementById('cat-filtro-estatus').value;
-  return PRODUCTOS.filter(p => {
+  let result = PRODUCTOS.filter(p => {
     if (fCentro && p.centro !== fCentro) return false;
     if (fCat && p.categoria !== fCat) return false;
     if (fEst && getEstatusActual(p) !== fEst) return false;
@@ -2331,6 +2334,39 @@ function obtenerFiltradosCatalogo() {
     }
     return true;
   });
+
+  // Aplicar orden si hay columna activa
+  if (sortDirCat !== 0 && sortColCat >= 0) {
+    const campos = ['centro', 'id_mx', 'desc_mx', 'categoria', 'id_rd', 'desc_rd', 'estatus'];
+    const campo = campos[sortColCat];
+    result = [...result].sort((a, b) => {
+      let va = (campo === 'estatus') ? getEstatusActual(a) : (a[campo] || '');
+      let vb = (campo === 'estatus') ? getEstatusActual(b) : (b[campo] || '');
+      if (campo === 'id_mx' || campo === 'id_rd') {
+        const na = parseInt(va) || 0, nb = parseInt(vb) || 0;
+        return (na - nb) * sortDirCat;
+      }
+      return va.toString().localeCompare(vb.toString(), 'es') * sortDirCat;
+    });
+  }
+  return result;
+}
+
+function sortCatalogo(col) {
+  if (sortColCat === col) {
+    sortDirCat = sortDirCat === 1 ? -1 : (sortDirCat === -1 ? 0 : 1);
+    if (sortDirCat === 0) sortColCat = -1;
+  } else {
+    sortColCat = col;
+    sortDirCat = 1;
+  }
+  document.querySelectorAll('#tabla-cat thead th').forEach((th, i) => {
+    th.classList.remove('sort-asc', 'sort-desc');
+    if (i === sortColCat) {
+      th.classList.add(sortDirCat === 1 ? 'sort-asc' : 'sort-desc');
+    }
+  });
+  renderCatalogo();
 }
 
 function renderCatalogo() {
