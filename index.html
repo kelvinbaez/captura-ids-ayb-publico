@@ -389,7 +389,7 @@ tbody td { padding:11px 14px; vertical-align:middle; }
   <div class="header-divider"></div>
   <div class="header-right">
     <strong id="fecha-hoy"></strong>
-    Generado: 07/05/2026 16:52
+    Generado: 07/05/2026 16:58
     <div class="header-dept">Moon Palace &mdash; Compras</div>
   </div>
 </div>
@@ -407,9 +407,9 @@ tbody td { padding:11px 14px; vertical-align:middle; }
 <!-- KPI CARDS -->
 <div class="kpi-bar">
   <div class="kpi k-uniq activo" data-kpi="total" onclick="filtrarPorKpi(this)">
-    <div class="num" data-target="907">0</div>
+    <div class="num" data-target="816">0</div>
     <div class="label">Productos Unicos</div>
-    <div class="pct-sub">Materiales distintos solicitados</div>
+    <div class="pct-sub">Centros normales (excluye Procesados)</div>
     <div class="hint">Base del avance &rarr;</div>
   </div>
   <div class="kpi k-total" data-kpi="total" onclick="filtrarPorKpi(this)">
@@ -419,9 +419,9 @@ tbody td { padding:11px 14px; vertical-align:middle; }
     <div class="hint">Ver todos &rarr;</div>
   </div>
   <div class="kpi k-no-iniciado" data-kpi="No iniciado" onclick="filtrarPorKpi(this)">
-    <div class="num" data-target="457">0</div>
+    <div class="num" data-target="379">0</div>
     <div class="label">No Iniciado</div>
-    <div class="pct-sub">50.4% de productos unicos</div>
+    <div class="pct-sub">46.4% de productos unicos</div>
     <div class="hint">Filtrar &rarr;</div>
   </div>
   <div class="kpi k-muestra" data-kpi="En proceso de muestra" onclick="filtrarPorKpi(this)">
@@ -431,7 +431,7 @@ tbody td { padding:11px 14px; vertical-align:middle; }
     <div class="hint">Filtrar &rarr;</div>
   </div>
   <div class="kpi k-temporal" data-kpi="Aprobacion temporal" onclick="filtrarPorKpi(this)">
-    <div class="num" data-target="450">0</div>
+    <div class="num" data-target="437">0</div>
     <div class="label">Aprobacion Temporal</div>
     <div class="pct-sub">Productos con ID RD asignado</div>
     <div class="hint">Filtrar &rarr;</div>
@@ -443,9 +443,9 @@ tbody td { padding:11px 14px; vertical-align:middle; }
     <div class="hint">Filtrar &rarr;</div>
   </div>
   <div class="kpi k-pct" data-kpi="total" onclick="filtrarPorKpi(this)">
-    <div class="num" data-target="49.6" data-suffix="%">0</div>
-    <div class="label">Avance General</div>
-    <div class="pct-sub">450 de 907 productos unicos</div>
+    <div class="num" data-target="53.6" data-suffix="%">0</div>
+    <div class="label">Avance Centros</div>
+    <div class="pct-sub">437 de 816 (Procesados aparte)</div>
     <div class="hint">Ver todos &rarr;</div>
   </div>
 </div>
@@ -453,26 +453,46 @@ tbody td { padding:11px 14px; vertical-align:middle; }
 <!-- BANNER INFORMATIVO -->
 <div class="info-banner">
   <div class="info-banner-icon">i</div>
-  <p>Existen <strong>907 productos unicos</strong>. Un mismo producto puede ser solicitado por varios centros (ej: el ajo lo piden varios restaurantes), por eso el total de asignaciones es <strong>2418</strong> &mdash; hay <strong>1511 asignaciones compartidas</strong> entre centros. Cambia el estatus de cada producto manualmente o asigna IDs RD desde la pestana de Asignaciones. Descarga los cambios y aplicalos al Excel maestro con el .bat.</p>
+  <p>El avance general se mide sobre <strong>816 productos unicos</strong> de los centros normales. Los <strong>91 productos procesados</strong> (ID Mexico empieza con 7) se gestionan aparte porque son elaborados internamente por el hotel: avance independiente del <strong>14.3%</strong>. Total general considerando ambos: <strong>907 productos unicos</strong> en <strong>2418 asignaciones</strong> (1511 repetidos entre centros).</p>
 </div>
 
-<!-- BARRA PROGRESO -->
+<!-- BARRA PROGRESO CENTROS NORMALES -->
 <div class="progress-bar">
   <div class="pb-label">
-    <span>Progreso de captura de IDs (medido sobre productos unicos)</span>
-    <span>49.6% aprobado (450 de 907 productos unicos)</span>
+    <span>Avance Centros Normales (productos unicos, excluye Procesados)</span>
+    <span>53.6% aprobado (437 de 816 productos unicos)</span>
   </div>
   <div class="pb-track" id="pb-track">
     <div class="pb-seg pb-definitiva" data-w="0.0"></div>
-    <div class="pb-seg pb-temporal" data-w="49.6"></div>
+    <div class="pb-seg pb-temporal" data-w="53.6"></div>
     <div class="pb-seg pb-muestra" data-w="0.0"></div>
-    <div class="pb-seg pb-no-iniciado" data-w="50.4"></div>
+    <div class="pb-seg pb-no-iniciado" data-w="46.4"></div>
   </div>
   <div class="pb-legend">
     <span><i class="dot" style="background:var(--c-definitiva)"></i> Aprob. Definitiva (0)</span>
-    <span><i class="dot" style="background:var(--c-temporal)"></i> Aprob. Temporal (450)</span>
+    <span><i class="dot" style="background:var(--c-temporal)"></i> Aprob. Temporal (437)</span>
     <span><i class="dot" style="background:var(--c-muestra)"></i> En Muestra (0)</span>
-    <span><i class="dot" style="background:var(--c-no-iniciado)"></i> No Iniciado (457)</span>
+    <span><i class="dot" style="background:var(--c-no-iniciado)"></i> No Iniciado (379)</span>
+  </div>
+</div>
+
+<!-- BARRA PROGRESO PROCESADOS -->
+<div class="progress-bar" style="border-left:4px solid var(--mp-gold);margin-top:14px">
+  <div class="pb-label">
+    <span>Avance Procesados (productos elaborados por el hotel)</span>
+    <span>14.3% aprobado (13 de 91 productos unicos)</span>
+  </div>
+  <div class="pb-track">
+    <div class="pb-seg pb-definitiva" data-w="0.0"></div>
+    <div class="pb-seg pb-temporal" data-w="14.3"></div>
+    <div class="pb-seg pb-muestra" data-w="0.0"></div>
+    <div class="pb-seg pb-no-iniciado" data-w="85.7"></div>
+  </div>
+  <div class="pb-legend">
+    <span><i class="dot" style="background:var(--c-definitiva)"></i> Definitiva (0)</span>
+    <span><i class="dot" style="background:var(--c-temporal)"></i> Temporal (13)</span>
+    <span><i class="dot" style="background:var(--c-muestra)"></i> En Muestra (0)</span>
+    <span><i class="dot" style="background:var(--c-no-iniciado)"></i> No Iniciado (78)</span>
   </div>
 </div>
 
@@ -1757,7 +1777,7 @@ tbody td { padding:11px 14px; vertical-align:middle; }
 </div>
 
 <div class="footer">
-  Moon Palace The Grand Punta Cana &nbsp;&mdash;&nbsp; Planificacion y Compras &nbsp;&mdash;&nbsp; Generado 07/05/2026 16:52
+  Moon Palace The Grand Punta Cana &nbsp;&mdash;&nbsp; Planificacion y Compras &nbsp;&mdash;&nbsp; Generado 07/05/2026 16:58
 </div>
 
 <div class="toast" id="toast"></div>
