@@ -420,9 +420,39 @@ tbody td { padding:11px 14px; vertical-align:middle; }
 .toast-prop { background:var(--mp-navy); color:white; padding:14px 18px; border-radius:10px; box-shadow:0 6px 16px rgba(0,0,0,0.25); font-size:13px; line-height:1.4; opacity:0; transform:translateX(420px); transition:all 0.4s ease; }
 .toast-prop.mostrar { opacity:1; transform:translateX(0); }
 .toast-prop strong { color:var(--mp-gold); display:block; margin-bottom:4px; font-size:13px; }
+
+/* === MULTI-COMPRADOR === */
+.identificacion-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.85); display: flex; align-items: center; justify-content: center; z-index: 5000; }
+.identificacion-overlay.oculto { display: none; }
+.identificacion-card { background: white; border-radius: 16px; padding: 36px 40px; max-width: 440px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; }
+.identificacion-card h2 { color: var(--mp-navy); margin: 0 0 8px; font-size: 22px; }
+.identificacion-card p { color: #6B7280; margin: 0 0 24px; font-size: 14px; }
+.identificacion-select { width: 100%; padding: 12px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 15px; margin-bottom: 18px; background: white; }
+.identificacion-btn { width: 100%; padding: 12px; background: var(--mp-gold); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.identificacion-btn:hover { background: #A87E1F; }
+.identificacion-btn:disabled { background: #D1D5DB; cursor: not-allowed; }
+.badge-usuario { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 16px; font-size: 12px; font-weight: 600; margin-left: 12px; vertical-align: middle; }
+.badge-usuario.admin { background: var(--mp-gold); color: white; }
+.badge-usuario.comprador { background: #2E6FAD; color: white; }
+.badge-usuario .cambiar-link { color: rgba(255,255,255,0.85); text-decoration: underline; cursor: pointer; font-size: 11px; font-weight: 400; margin-left: 8px; }
+#toast-actualizar { position: fixed; bottom: 24px; right: 24px; background: var(--mp-navy); color: white; padding: 14px 20px; border-radius: 10px; box-shadow: 0 6px 16px rgba(0,0,0,0.25); z-index: 3000; font-size: 13px; }
+#toast-actualizar button { margin-left: 10px; background: var(--mp-gold); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
 </style>
 </head>
 <body>
+
+<!-- MODAL IDENTIFICACION MULTI-COMPRADOR -->
+<div id="identificacion-overlay" class="identificacion-overlay oculto">
+  <div class="identificacion-card">
+    <h2>Panel de Compras A&amp;B</h2>
+    <p>Moon Palace The Grand Punta Cana</p>
+    <p>Selecciona tu nombre para empezar:</p>
+    <select id="identificacion-select" class="identificacion-select">
+      <option value="">Cargando...</option>
+    </select>
+    <button id="identificacion-btn" class="identificacion-btn" disabled>Entrar</button>
+  </div>
+</div>
 
 <!-- HEADER -->
 <div class="header">
@@ -435,7 +465,7 @@ tbody td { padding:11px 14px; vertical-align:middle; }
   <div class="header-divider"></div>
   <div class="header-right">
     <strong id="fecha-hoy"></strong>
-    Generado: 15/05/2026 10:07
+    Generado: 15/05/2026 10:15
     <div class="header-dept">Moon Palace &mdash; Compras</div>
   </div>
 </div>
@@ -1772,8 +1802,8 @@ tbody td { padding:11px 14px; vertical-align:middle; }
   <label>Estatus:</label>
   <select id="filtro-estatus"><option value="">Todos</option><option value="No iniciado">No iniciado</option><option value="En proceso de muestra">En proceso de muestra</option><option value="Aprobacion temporal">Aprobacion temporal</option><option value="Aprobacion definitiva">Aprobacion definitiva</option></select>
   <button class="btn-reset" onclick="resetFiltros()">Limpiar</button>
-  <button class="btn-export" id="btn-export" disabled onclick="exportarJSON()" style="display:none">
-    Descargar cambios <span class="contador-cambios" id="contador-cambios">0</span>
+  <button class="btn-export" id="btn-export" disabled onclick="aplicarYDescargar()" style="display:none">
+    Aplicar y descargar comprobante
   </button>
 </div>
 
@@ -1951,7 +1981,7 @@ tbody td { padding:11px 14px; vertical-align:middle; }
 </div>
 
 <div class="footer">
-  Moon Palace The Grand Punta Cana &nbsp;&mdash;&nbsp; Planificacion y Compras &nbsp;&mdash;&nbsp; Generado 15/05/2026 10:07
+  Moon Palace The Grand Punta Cana &nbsp;&mdash;&nbsp; Planificacion y Compras &nbsp;&mdash;&nbsp; Generado 15/05/2026 10:15
 </div>
 
 <div class="toast" id="toast"></div>
@@ -2478,6 +2508,7 @@ function asignarID(id, desc) {
   document.getElementById('asig-lista-zpmm').innerHTML = '<div style="padding:24px;text-align:center;color:#9eaab5;font-size:13px">Selecciona el siguiente producto para asignar.</div>';
   actualizarFooterAsig();
   renderListaPendientes();
+  guardarAsignacionesLocal();
 }
 
 function actualizarFooterAsig() {
@@ -2498,6 +2529,7 @@ function limpiarAsignaciones() {
   prodSeleccionado = null;
   actualizarFooterAsig();
   renderListaPendientes();
+  guardarAsignacionesLocal();
 }
 
 function descargarAsignaciones() {
@@ -3009,7 +3041,7 @@ function filtrarProcesados() {
 }
 
 // === TOAST DE PROPAGACION ===
-const ULTIMO_AVISO = [{"id_mx": "1003794", "id_rd": "1016168", "desc": "Sal rosa de celestun 5 kg", "procesados_afectados": []}];
+const ULTIMO_AVISO = [];
 
 function mostrarToastsAviso() {
   if (!ULTIMO_AVISO || !ULTIMO_AVISO.length) return;
@@ -3113,6 +3145,7 @@ function confirmarAsignacionReceta(idRd, descRd) {
   };
 
   showToast('Asignado: ' + idRd + ' aplicado a ' + filasIngrediente.length + ' fila' + (filasIngrediente.length === 1 ? '' : 's'));
+  guardarAsignacionesLocal();
   cerrarAsignacionReceta();
   // Refrescar contador de la pestana Asignaciones Manuales si esta cargada
   if (typeof actualizarFooterAsig === 'function') actualizarFooterAsig();
@@ -3141,7 +3174,272 @@ document.addEventListener('DOMContentLoaded', () => {
       _debounce = setTimeout(() => renderCandidatosProc(e.target.value), 200);
     });
   }
+  // Multi-comprador
+  inicializarIdentificacion();
+  setTimeout(recuperarAsignacionesSiHay, 600);
+  setTimeout(chequearVersion, 1000);
+  setInterval(chequearVersion, 30000);
 });
+
+// === MULTI-COMPRADOR: identificacion + localStorage + auto-refresh ===
+
+const STORAGE_KEY_USUARIO = "comprador_ayb_nombre";
+const STORAGE_KEY_ASIGNACIONES = "asignaciones_pendientes_ayb";
+
+async function inicializarIdentificacion() {
+  const guardado = localStorage.getItem(STORAGE_KEY_USUARIO);
+  if (guardado) {
+    aplicarUsuario(guardado);
+    return;
+  }
+  if (location.protocol === "file:") {
+    aplicarUsuario("Kelvin (Administrador)");
+    return;
+  }
+  await mostrarModalIdentificacion();
+}
+
+async function mostrarModalIdentificacion() {
+  const overlay = document.getElementById("identificacion-overlay");
+  const select = document.getElementById("identificacion-select");
+  const btn = document.getElementById("identificacion-btn");
+  try {
+    const resp = await fetch("/compradores");
+    const lista = await resp.json();
+    select.innerHTML = '<option value="">Seleccionar...</option>' +
+      lista.map(n => '<option value="' + n + '">' + n + '</option>').join("");
+  } catch (e) {
+    select.innerHTML = '<option value="">Error al cargar (servidor caido)</option>';
+  }
+  overlay.classList.remove("oculto");
+  select.addEventListener("change", () => { btn.disabled = !select.value; });
+  btn.addEventListener("click", () => {
+    if (!select.value) return;
+    localStorage.setItem(STORAGE_KEY_USUARIO, select.value);
+    overlay.classList.add("oculto");
+    aplicarUsuario(select.value);
+  });
+}
+
+function aplicarUsuario(nombre) {
+  window.USUARIO_ACTUAL = nombre;
+  window.ES_ADMIN = nombre.includes("(Administrador)");
+  const header = document.querySelector("h1");
+  if (header && !header.querySelector(".badge-usuario")) {
+    const badge = document.createElement("span");
+    badge.className = "badge-usuario " + (window.ES_ADMIN ? "admin" : "comprador");
+    badge.innerHTML = nombre + ' <span class="cambiar-link" onclick="cambiarUsuario()">Cambiar</span>';
+    header.appendChild(badge);
+  }
+}
+
+function cambiarUsuario() {
+  localStorage.removeItem(STORAGE_KEY_USUARIO);
+  location.reload();
+}
+
+// === Auto-guardado de asignaciones en localStorage ===
+
+function guardarAsignacionesLocal() {
+  try {
+    if (typeof asignaciones !== "undefined") {
+      localStorage.setItem(STORAGE_KEY_ASIGNACIONES, JSON.stringify(asignaciones));
+    }
+  } catch (e) {
+    console.warn("No se pudo guardar en localStorage:", e);
+  }
+}
+
+function cargarAsignacionesLocal() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_ASIGNACIONES);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (Object.keys(parsed).length === 0) return null;
+    return parsed;
+  } catch (e) {
+    return null;
+  }
+}
+
+function limpiarAsignacionesLocal() {
+  localStorage.removeItem(STORAGE_KEY_ASIGNACIONES);
+}
+
+function recuperarAsignacionesSiHay() {
+  const pendientes = cargarAsignacionesLocal();
+  if (pendientes && Object.keys(pendientes).length > 0) {
+    const cuantos = Object.keys(pendientes).length;
+    if (confirm("Tienes " + cuantos + " asignaciones sin aplicar de tu sesion anterior. Recuperar?")) {
+      Object.assign(asignaciones, pendientes);
+      if (typeof renderListaPendientes === "function") renderListaPendientes();
+      if (typeof actualizarFooterAsig === "function") actualizarFooterAsig();
+      if (typeof showToast === "function") showToast("Asignaciones recuperadas.");
+    } else {
+      limpiarAsignacionesLocal();
+    }
+  }
+}
+
+// === Boton Aplicar y descargar comprobante ===
+
+async function aplicarYDescargar() {
+  const usuario = window.USUARIO_ACTUAL || "desconocido";
+  if (!usuario || usuario === "desconocido") {
+    alert("Identificate primero.");
+    return;
+  }
+  if (typeof asignaciones === "undefined" || Object.keys(asignaciones).length === 0) {
+    if (typeof showToast === "function") showToast("No hay asignaciones para aplicar.");
+    return;
+  }
+
+  // 1) Construir payload con id_mx
+  const asignacionesServidor = Object.values(asignaciones).map(a => ({
+    id_mx: a.id_mx || (a.filas && a.filas[0] && a.filas[0].id_mx) || "",
+    id_rd: a.id_rd,
+    desc_rd: a.desc_rd,
+  })).filter(a => a.id_mx);
+
+  // 2) Construir payload con filas (formato legacy para descarga)
+  let filasExpandidas = [];
+  Object.values(asignaciones).forEach(a => {
+    a.filas.forEach(f => {
+      filasExpandidas.push({
+        fila: f.fila,
+        id_rd: a.id_rd,
+        desc_rd: a.desc_rd,
+        nuevo_estatus: a.nuevo_estatus,
+      });
+    });
+  });
+  const payloadDescarga = {
+    tipo: "asignaciones",
+    comprador: usuario,
+    productos_unicos: Object.keys(asignaciones).length,
+    asignaciones: filasExpandidas,
+    timestamp_cliente: new Date().toISOString(),
+  };
+
+  // 3) Descargar siempre como comprobante
+  const ts = new Date().toISOString().replace(/[:.]/g, "-");
+  const nombreUsuario = usuario.replace(/ .*/, "");
+  const blob = new Blob([JSON.stringify(payloadDescarga, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "asignaciones_" + nombreUsuario + "_" + ts + ".json";
+  a.click();
+
+  // 4) Si file://, no enviar al servidor
+  if (location.protocol === "file:") {
+    if (typeof showToast === "function") showToast("Comprobante descargado (modo offline).");
+    return;
+  }
+
+  // 5) Enviar al servidor
+  if (typeof showToast === "function") showToast("Aplicando " + asignacionesServidor.length + " asignaciones...");
+  try {
+    const respuesta = await fetch("/aplicar-cambios", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Comprador": usuario,
+      },
+      body: JSON.stringify({ asignaciones: asignacionesServidor }),
+    });
+    if (!respuesta.ok) {
+      const err = await respuesta.json();
+      if (typeof showToast === "function") showToast("Error: " + (err.error || respuesta.status));
+      return;
+    }
+    const data = await respuesta.json();
+    if (typeof showToast === "function") showToast("Lote en cola (posicion " + data.posicion_cola + "). Esperando...");
+    await esperarLote(data.id_lote);
+  } catch (e) {
+    if (typeof showToast === "function") showToast("Servidor no responde. Comprobante descargado, avisa a Kelvin.");
+  }
+}
+
+async function esperarLote(idLote) {
+  for (let i = 0; i < 60; i++) {
+    await new Promise(r => setTimeout(r, 1000));
+    try {
+      const resp = await fetch("/estado-lote/" + idLote);
+      const estado = await resp.json();
+      if (estado.estado === "ok") {
+        const aplicados = estado.resultado ? estado.resultado.aplicados : 0;
+        if (typeof showToast === "function") showToast("Listo: " + aplicados + " filas aplicadas. Refrescando...");
+        limpiarAsignacionesLocal();
+        setTimeout(() => location.reload(), 2000);
+        return;
+      } else if (estado.estado === "esperando_resolucion") {
+        mostrarModalConflictos(idLote, estado.resultado.conflictos);
+        return;
+      } else if (estado.estado === "error") {
+        if (typeof showToast === "function") showToast("Error aplicando: " + JSON.stringify(estado.resultado));
+        return;
+      }
+    } catch (e) {
+      // reintentar
+    }
+  }
+  if (typeof showToast === "function") showToast("Timeout esperando el servidor.");
+}
+
+function mostrarModalConflictos(idLote, conflictos) {
+  const decisiones = {};
+  for (const c of conflictos) {
+    const msg = "Conflicto:\n" + c.desc + "\n" +
+                "Tu asignacion: " + c.tu_id_rd + "\n" +
+                "Ya tiene: " + c.id_rd_actual + "\n\n" +
+                "OK = Sobrescribir, Cancelar = Mantener actual";
+    decisiones[c.id_mx] = confirm(msg) ? "sobrescribir" : "mantener";
+  }
+  fetch("/resolver-conflictos/" + idLote, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Comprador": window.USUARIO_ACTUAL,
+    },
+    body: JSON.stringify({ decisiones }),
+  }).then(r => r.json()).then(d => {
+    if (d.id_lote) {
+      if (typeof showToast === "function") showToast("Resolviendo conflictos...");
+      esperarLote(d.id_lote);
+    }
+  });
+}
+
+// === Auto-refresh de version ===
+
+let _versionLocal = null;
+
+async function chequearVersion() {
+  if (location.protocol === "file:") return;
+  try {
+    const resp = await fetch("/version");
+    const data = await resp.json();
+    if (_versionLocal === null) {
+      _versionLocal = data.version;
+      return;
+    }
+    if (data.version !== _versionLocal) {
+      _versionLocal = data.version;
+      mostrarToastActualizacion(data.ultimo_cambio_por);
+    }
+  } catch (e) {
+    // servidor caido, ignorar
+  }
+}
+
+function mostrarToastActualizacion(quien) {
+  if (document.getElementById("toast-actualizar")) return;
+  const div = document.createElement("div");
+  div.id = "toast-actualizar";
+  div.innerHTML = "Hay cambios nuevos" + (quien ? " de " + quien : "") +
+                  '. <button onclick="location.reload()">Actualizar</button>';
+  document.body.appendChild(div);
+}
 </script>
 </body>
 </html>
